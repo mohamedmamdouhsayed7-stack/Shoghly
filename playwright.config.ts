@@ -1,9 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
+
+if (existsSync(".env.test.local")) {
+  process.loadEnvFile(".env.test.local");
+}
 
 const port = Number(process.env.PORT ?? 3000);
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./scripts/playwright-global-setup.mjs",
   fullyParallel: true,
   workers: 2,
   forbidOnly: Boolean(process.env.CI),
@@ -20,10 +26,4 @@ export default defineConfig({
       use: { ...devices["iPhone 13"], browserName: "chromium" },
     },
   ],
-  webServer: {
-    command: `node ./node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port ${port}`,
-    url: `http://127.0.0.1:${port}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
 });

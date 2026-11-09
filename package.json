@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "demo": "node scripts/start-demo.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -13,13 +14,23 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:demo": "playwright test --config playwright.demo.config.ts",
+    "test:e2e:ui": "playwright test --ui",
+    "backend:start:dev": "npm --prefix backend run start:dev",
+    "backend:build": "npm --prefix backend run build",
+    "backend:test": "npm --prefix backend test",
+    "backend:prisma:validate": "npm --prefix backend run prisma:validate",
+    "backend:prisma:generate": "npm --prefix backend run prisma:generate",
+    "backend:prisma:migrate:dev": "npm --prefix backend run prisma:migrate:dev",
+    "bootstrap:admin": "node --env-file-if-exists=.env.local scripts/bootstrap-admin.mjs"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
-    "@radix-ui/react-slot": "^1.2.3",
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -40,8 +51,9 @@
     "jsdom": "^27.0.0",
     "prettier": "^3.6.0",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "supabase": "3.0.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.9.0",
-    "vitest": "^3.2.0"
+    "vitest": "4.1.12"
   }
 }

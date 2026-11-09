@@ -59,6 +59,12 @@ export default function HomePage() {
                     <ArrowLeft aria-hidden="true" className="size-4" />
                   </a>
                 </Button>
+                <Button
+                  asChild
+                  className="bg-rose-500 shadow-sm hover:bg-rose-600"
+                >
+                  <Link href="/dashboard">لوحة العامل</Link>
+                </Button>
                 <Link
                   href="#principles"
                   className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none"

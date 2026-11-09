@@ -5,6 +5,10 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["backend/**/*.ts"],
+    rules: { "@next/next/no-html-link-for-pages": "off" },
+  },
   globalIgnores([
     ".next/**",
     "out/**",
@@ -13,6 +17,8 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    "backend/dist/**",
+    "backend/node_modules/**",
   ]),
 ]);
 

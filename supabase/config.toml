@@ -1,0 +1,31 @@
+# Local CLI identifier only. This is not a hosted Supabase project reference.
+project_id = "shoghly-local"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[local_smtp]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000/**", "http://localhost:3000/**"]
+enable_signup = true
+
+[auth.email]
+enabled = true
+enable_confirmations = true
+secure_password_change = true

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { href: "#about", label: "عن شغلني" },
   { href: "#principles", label: "مبادئنا" },
+  { href: "/login", label: "تسجيل الدخول" },
+  { href: "/register", label: "إنشاء حساب" },
 ];
 
 export function SiteHeader() {
@@ -52,10 +54,13 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Button asChild variant="secondary" className="hidden sm:inline-flex">
+            <Link href="/login">تسجيل الدخول</Link>
+          </Button>
           <Button asChild className="hidden sm:inline-flex">
-            <a href="#about">
-              اكتشف شغلني <ArrowLeft aria-hidden="true" className="size-4" />
-            </a>
+            <Link href="/register">
+              إنشاء حساب <ArrowLeft aria-hidden="true" className="size-4" />
+            </Link>
           </Button>
           <a
             href="#navigation"

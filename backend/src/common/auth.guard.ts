@@ -76,23 +76,40 @@ export class SupabaseAuthGuard implements CanActivate {
       throw new UnauthorizedException("The account is not active.");
     }
 
-    request.user = toAuthenticatedUser(data.user);
+    let user: {
+      id: string;
+      email: string;
+      status: string;
+      emailVerifiedAt: Date | null;
+    } | null;
     try {
-      await this.prisma.user.upsert({
+      user = await this.prisma.user.findUnique({
         where: { id: data.user.id },
-        create: { id: data.user.id },
-        update: {},
+        select: { id: true, email: true, status: true, emailVerifiedAt: true },
       });
     } catch {
       throw new ServiceUnavailableException(
         "The application data store is unavailable.",
       );
     }
+    if (
+      !user ||
+      user.status !== "ACTIVE" ||
+      !user.emailVerifiedAt ||
+      user.email.toLowerCase() !== data.user.email?.toLowerCase()
+    ) {
+      throw new UnauthorizedException("The account is not active.");
+    }
+
+    request.user = toAuthenticatedUser(user);
     request.supabaseAccessToken = match[1];
     return true;
   }
 }
 
-function toAuthenticatedUser(user: User): { id: string; email?: string } {
+function toAuthenticatedUser(user: User | { id: string; email: string }): {
+  id: string;
+  email?: string;
+} {
   return { id: user.id, ...(user.email ? { email: user.email } : {}) };
 }

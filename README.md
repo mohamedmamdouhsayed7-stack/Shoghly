@@ -8,15 +8,15 @@ This repository contains the Phase 1 application foundation, Phase 2 authenticat
 
 ## Requirements
 
-- Node.js 24 or compatible supported LTS release
-- npm 11 (lockfile and scripts use npm)
+- Node.js 24.20.0 (`.nvmrc`)
+- npm 11.19.0 (`packageManager` in both app manifests)
 
 ## Local development
 
 1. Start the local Supabase stack using the Supabase CLI and `supabase/config.toml`.
 2. Copy `.env.development.example` to `.env.development.local` and set the local Supabase publishable key.
 3. Copy `.env.test.example` to `.env.test.local` only when running the local Supabase email-flow E2E test; keep its values pointed at loopback services.
-4. Run `npm ci`.
+4. Run `npm ci` for the web app, or `npm run install:all` to install both apps from their lockfiles.
 5. Run `npm run dev` and open `http://localhost:3000`.
 
 The server-only environment module validates the app URL and Supabase URL/key. Plain HTTP is accepted only for a loopback URL in development; Supabase URLs containing embedded credentials, query strings, or fragments are rejected. Set `APP_URL` to the exact public application origin; admin mutation Origin checks compare to this configured value and do not trust forwarded host headers. `SHOGHLY_API_URL` names the backend service and is only read by the server-only backend client. The Supabase publishable key is passed only to server-created SSR clients; privileged service-role credentials are never used by the web app. Auth cookies are HttpOnly and SameSite=Lax, and use Secure when `APP_URL` is HTTPS. Do not add secrets to `NEXT_PUBLIC_*` variables or commit local environment files. Protected server routes independently verify the user and permission.
@@ -83,7 +83,13 @@ The isolated `backend/` project provides a NestJS REST API, Prisma/PostgreSQL sc
 
 Copy `backend/.env.example` to `backend/.env` and set only local disposable values. `REWARD_MULTIPLIER_SNAPSHOT_POLICY` is intentionally required and must be set to `submission` or `approval` only after the product owner confirms the snapshot point. There are no seeded packages, prices, or multipliers. The local migration wrappers refuse non-loopback databases and database names other than `shoghly_backend_disposable` or `shoghly_backend_test`.
 
-Install and run the API with `npm install --prefix backend`, `npm run backend:prisma:generate`, then `npm run backend:start:dev`. Validate with `npm run backend:build`, `npm run backend:test`, and `npm run backend:prisma:validate`. A local migration can run only after a new disposable database has been provisioned safely: `npm run backend:prisma:migrate:dev`. No local database has been created or migrated here because the existing Supabase Docker volume is not verified as disposable and its previous port bindings were unsafe. Do not point these commands at that volume.
+Install and run the API with `npm run install:backend`, `npm run backend:prisma:generate`, then `npm run backend:start:dev`. Validate with `npm run backend:build`, `npm run backend:test`, and `npm run backend:prisma:validate`. `DATABASE_URL` is used by Prisma Client at runtime; `DIRECT_URL` is the direct PostgreSQL URL for migration tooling (for Neon, use the provider's direct endpoint here and its pooled endpoint in `DATABASE_URL`). Prisma Client generation downloads the matching engine from `binaries.prisma.sh`; restricted build environments must allow that host or provide a compatible cached engine. Generation and schema validation do not connect to a database. A local migration can run only after a new disposable database has been provisioned safely: `npm run backend:prisma:migrate:dev`. No local database has been created or migrated here because the existing Supabase Docker volume is not verified as disposable and its previous port bindings were unsafe. Do not point these commands at that volume.
+
+The backend `.env.example` contains loopback-only placeholders for a dedicated disposable database; copy it to the ignored `backend/.env` and replace placeholders only with approved local credentials. Never place a Neon connection URL in a committed example or access a production/staging database during local validation.
+
+## Build and deployment compatibility
+
+See [`docs/BUILD_AND_DEPLOYMENT.md`](docs/BUILD_AND_DEPLOYMENT.md) for clean-install commands, the verified Node/npm line, environment variable roles, Prisma engine requirements, and the Google AI Studio monorepo limitation. This repository has two independent Node applications: the root Next.js process does not start the NestJS API. AI Studio's GitHub import and single app preview do not establish that it installs or runs both processes; use separate frontend/API services or an environment that supports multiple long-running processes. Do not represent a frontend-only preview as a fully connected product.
 
 All mutating API operations require an `Idempotency-Key`; submission plus quota reservation is one transaction, approval plus quota consumption and reward-ledger entry is one transaction, and rejection plus reservation release is one transaction. Approvals lock a per-user gate row in PostgreSQL and recheck the rolling 24-hour rule inside the transaction. The quota grant model reserves at submission, consumes on approval, releases on rejection, and preserves reservations across expiration while pending. Free lifetime quota is five approved tasks; paid subscription grants are supported as backend data only, without payment or package-value assumptions.
 
